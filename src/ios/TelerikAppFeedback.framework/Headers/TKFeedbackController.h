@@ -17,7 +17,7 @@
  Initializes the feedback controller.
  @param contentController The view controller that can be used as a root view controller in the application.
  */
-- (id)initWithContentController:(UIViewController *)contentController;
+- (instancetype)initWithContentController:(UIViewController *)contentController;
 
 /**
  The view controller that contain root view controller (read-only).

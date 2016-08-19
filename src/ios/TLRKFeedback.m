@@ -6,11 +6,16 @@
 //
 
 #import "TLRKFeedback.h"
-#import "CDVDevice.h"
-#import <TelerikAppFeedback/AppFeedback.h>
-#import <objc/message.h>
+#import <Cordova/UIDevice+Extensions.h>
+#import <TelerikAppFeedback/TelerikAppFeedback.h>
 
 @implementation TLRKFeedback
+
+NSString* const feedbackSentAlertTitleSettingName = @"feedbackSentAlertTitle";
+NSString* const feedbackSentAlertTextSettingName = @"feedbackSentAlertText";
+NSString* const feedbackTitleSettingName = @"feedbackTitle";
+NSString* const iOSFeedbackOptionsKeyName = @"iOS";
+
 
 @synthesize webView;
 
@@ -18,22 +23,40 @@
 {
     NSString *apiKey = command.arguments[0];
     NSString *apiUrl = command.arguments[1];
-    NSString *uid;
 
-    CDVDevice *device = CDVDevice.new;
-    SEL devicePropertiesSEL = NSSelectorFromString(@"deviceProperties");
-    SEL identifierForVendorSEL = NSSelectorFromString(@"identifierForVendor");
+	// iOS localization specific options
+    // TODO: Dont' repeat yourself
+    // using UTF8 strings to allow dispalying Chinese and Cyrillic chars 
+    // using NSNull comparison for JSON values set to null
+	if(command.arguments.count == 3 && command.arguments[2]) {
+		NSDictionary *feedbackOptions = command.arguments[2];
 
-    if ([device respondsToSelector:devicePropertiesSEL]) {
-        // Use the core plugin 'cordova-plugin-device' to get the uid value.
-        // For more details see: https://github.com/apache/cordova-ios/blob/master/guides/API%20changes%20in%204.0.md
-        NSDictionary *properties = objc_msgSend(device, devicePropertiesSEL);
-        uid = properties[@"uuid"];
-    } else if ([UIDevice.currentDevice respondsToSelector:identifierForVendorSEL]) {
-        // Fallback to UIDevice's 'identifierForVendor' method.
-        uid = objc_msgSend(objc_msgSend(UIDevice.currentDevice, identifierForVendorSEL), @selector(UUIDString));
-    }
+		NSDictionary *iOSLocalizationOptions = [feedbackOptions valueForKey:iOSFeedbackOptionsKeyName];
+		if(iOSLocalizationOptions != nil ) {
+			NSString* feedbackSentAlertTitle = [iOSLocalizationOptions valueForKey:feedbackSentAlertTitleSettingName];
+			if (feedbackSentAlertTitle != nil && ![feedbackSentAlertTitle isKindOfClass:[NSNull class]]) {	
+				char *cString = [feedbackSentAlertTitle UTF8String];
+				[TKFeedback feedbackSettings].feedbackSentAlertTitle = [[NSString alloc] initWithUTF8String:cString];
+		    }
 
+			NSString* feedbackSentAlertText = [iOSLocalizationOptions valueForKey:feedbackSentAlertTextSettingName];
+			if (feedbackSentAlertText != nil && ![feedbackSentAlertText isKindOfClass:[NSNull class]]) {
+				char *cString = [feedbackSentAlertText UTF8String];
+				[TKFeedback feedbackSettings].feedbackSentAlertText = [[NSString alloc] initWithUTF8String:cString];
+			}
+
+			NSString* feedbackTitle = [iOSLocalizationOptions valueForKey:feedbackTitleSettingName];
+			if (feedbackTitle != nil && ![feedbackTitle isKindOfClass:[NSNull class]]) {
+				char *cString = [feedbackTitle UTF8String];
+				[TKFeedback feedbackSettings].feedbackTitle  = [[NSString alloc] initWithUTF8String:cString];
+			}
+		}
+	}
+    // end iOS localization options
+
+
+    NSString *uid = [[[UIDevice currentDevice] uniqueAppInstanceIdentifier] lowercaseString];
+    
     TKFeedback.dataSource = [[TKPlatformFeedbackSource alloc] initWithKey:apiKey uid:uid apiBaseURL:apiUrl parameters:NULL];
 
     [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
@@ -64,7 +87,9 @@
     }
 
     CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:values];
-    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+    NSString *callbackId = [command callbackId];
+    [self success:result callbackId:callbackId];
 }
 
 @end
+

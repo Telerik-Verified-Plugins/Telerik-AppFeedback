@@ -12,9 +12,10 @@ var cordova = require('cordova'),
 
             if (options) {
                 options.enableShake = typeof options.enableShake === 'undefined' ? true : options.enableShake;
+                
             } else {
                 options = {
-                    enableShake: true
+                    enableShake: true,
                 };
             }
 
@@ -31,7 +32,7 @@ var cordova = require('cordova'),
                 }
             }, function errorCallback(error) {
                 //not used right now. reserved for future use
-            }, 'AppFeedback', 'initialize', [apiKey, apiUrl]);
+            }, 'AppFeedback', 'initialize', [apiKey, apiUrl, options ? options : []]);
         };
         this.showFeedback = function () {
             cordova.exec(function successCallback(result) {
@@ -44,7 +45,7 @@ var cordova = require('cordova'),
     feedback = new Feedback();
 
 window.addEventListener('deviceready', function () {
-    cordova.exec(function(data) {
+    cordova.exec(function (data) {
         if (data.apiKey !== 'YourKeyHere') {
             var shouldEnableShake = (data.enableShake || '').toLowerCase() === 'true';
             var feedbackOptions = {
@@ -53,9 +54,9 @@ window.addEventListener('deviceready', function () {
             };
             feedback.initialize(data.apiKey, feedbackOptions);
         }
-    }, function(err) {
+    }, function (err) {
         console.log('Unable to read required plugin variables: ' + err);
-    }, 'AppFeedback', 'GetVariables', [ 'apiKey', 'apiUrl', 'enableShake' ]);
+    }, 'AppFeedback', 'GetVariables', ['apiKey', 'apiUrl', 'enableShake']);
 }, true);
 
 module.exports = feedback;

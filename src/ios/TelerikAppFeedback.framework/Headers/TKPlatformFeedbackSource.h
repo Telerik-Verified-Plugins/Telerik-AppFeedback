@@ -16,14 +16,14 @@
  Initializes a new instnace of the object.
  @param apiKey The apiKey used to connect with Telerik platform.
  */
-- (id)initWithKey:(NSString *)apiKey;
+- (instancetype)initWithKey:(NSString *)apiKey;
 
 /**
  Initializes a new instnace of the object.
  @param apiKey The apiKey used to connect with Telerik platform.
  @param uid The user id used to connect with Telerik platform.
  */
-- (id)initWithKey:(NSString *)apiKey uid:(NSString *)uid;
+- (instancetype)initWithKey:(NSString *)apiKey uid:(NSString *)uid;
 
 /*
  Initializes a new instance of the object.
@@ -32,7 +32,7 @@
  @param apiBaseURL The base url to use when connecting with the server.
  @param parameters Key/value pairs that will be appended with every query to the server.
  */
-- (id)initWithKey:(NSString *)apiKey uid:(NSString *)uid apiBaseURL:(NSString *)apiBaseUrl parameters:(NSDictionary*)parameters;
+- (instancetype)initWithKey:(NSString *)apiKey uid:(NSString *)uid apiBaseURL:(NSString *)apiBaseUrl parameters:(NSDictionary*)parameters;
 
 /**
  The API key created in the Telerik AppFeedback service for your application.

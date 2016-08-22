@@ -31,7 +31,7 @@ var cordova = require('cordova'),
                 }
             }, function errorCallback(error) {
                 //not used right now. reserved for future use
-            }, 'AppFeedback', 'initialize', [apiKey, apiUrl]);
+            }, 'AppFeedback', 'initialize', [apiKey, apiUrl, options ? options : []]);
         };
         this.showFeedback = function () {
             cordova.exec(function successCallback(result) {

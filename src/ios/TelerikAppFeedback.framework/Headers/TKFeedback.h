@@ -5,6 +5,8 @@
 //  Copyright (c) 2014 Telerik. All rights reserved.
 //
 
+#import "TKFeedbackSettings.h"
+
 @protocol TKFeedbackDataSource;
 
 @interface TKFeedback : NSObject
@@ -20,5 +22,7 @@
 + (void)sendFeedback;
 
 + (BOOL)feedbackIsShown;
+
++ (TKFeedbackSettings*) feedbackSettings;
 
 @end

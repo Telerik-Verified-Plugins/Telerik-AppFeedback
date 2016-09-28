@@ -7,10 +7,15 @@
 
 #import "TLRKFeedback.h"
 #import "CDVDevice.h"
-#import <TelerikAppFeedback/AppFeedback.h>
+#import <TelerikAppFeedback/TelerikAppFeedback.h>
 #import <objc/message.h>
 
 @implementation TLRKFeedback
+
+static NSString * const kFeedbackSentAlertTitleSettingName = @"feedbackSentAlertTitle";
+static NSString * const kFeedbackSentAlertTextSettingName = @"feedbackSentAlertText";
+static NSString * const kFeedbackTitleSettingName = @"feedbackTitle";
+static NSString * const kIOSFeedbackOptionsKeyName = @"iOS";
 
 @synthesize webView;
 
@@ -34,6 +39,31 @@
         uid = objc_msgSend(objc_msgSend(UIDevice.currentDevice, identifierForVendorSEL), @selector(UUIDString));
     }
 
+   	// iOS localization specific options
+    // using UTF8 strings to allow displaying Chinese, Cyrillic, etc. chars 
+    NSDictionary *feedbackOptions = command.arguments.count > 2 ? command.arguments[2] : nil;
+
+    NSDictionary *iOSLocalizationOptions = [feedbackOptions valueForKey:kIOSFeedbackOptionsKeyName];
+    
+    NSString *feedbackSentAlertTitle = [iOSLocalizationOptions valueForKey:kFeedbackSentAlertTitleSettingName];
+    if (feedbackSentAlertTitle !=nil && ![feedbackSentAlertTitle isKindOfClass:[NSNull class]]) {	
+    	const char *cString = [feedbackSentAlertTitle UTF8String];
+    	[TKFeedback feedbackSettings].feedbackSentAlertTitle = [NSString stringWithUTF8String:cString];
+    }
+
+    NSString *feedbackSentAlertText = [iOSLocalizationOptions valueForKey:kFeedbackSentAlertTextSettingName];
+    if (feedbackSentAlertText != nil && ![feedbackSentAlertText isKindOfClass:[NSNull class]]) {
+    	const char *cString = [feedbackSentAlertText UTF8String];
+    	[TKFeedback feedbackSettings].feedbackSentAlertText = [NSString stringWithUTF8String:cString];
+    }
+
+    NSString *feedbackTitle = [iOSLocalizationOptions valueForKey:kFeedbackTitleSettingName];
+    if (feedbackTitle != nil && ![feedbackTitle isKindOfClass:[NSNull class]]) {
+    	const char *cString = [feedbackTitle UTF8String];
+    	[TKFeedback feedbackSettings].feedbackTitle  = [NSString stringWithUTF8String:cString];
+    }
+	// end iOS localization options
+	
     TKFeedback.dataSource = [[TKPlatformFeedbackSource alloc] initWithKey:apiKey uid:uid apiBaseURL:apiUrl parameters:NULL];
 
     [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
